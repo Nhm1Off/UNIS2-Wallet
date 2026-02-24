@@ -1,0 +1,12 @@
+{
+  "name": "UNIS2 Wallet",
+  "image": "https://i.ibb.co/QFxzjmW6/unis2wallet.png",
+  "about_url": "https://unis-2-wallet.vercel.app",
+  "bridge": [
+    {
+      "type": "sse",
+      "url": "https://bridge.tonapi.io/bridge" 
+    }
+  ],
+  "platforms": ["chrome", "android"]
+}
