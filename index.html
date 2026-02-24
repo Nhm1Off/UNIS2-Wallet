@@ -398,6 +398,43 @@
             ).catch(err => console.error(err));
         };
 
+        // --- ФУНКЦІЯ ВИХОДУ ---
+        window.logoutWallet = () => {
+            if (confirm("Ви впевнені? Якщо ви не зберегли 24 слова, ви назавжди втратите доступ до активів!")) {
+                localStorage.removeItem('ton_mnemonic');
+                window.location.reload(); // Перезавантажує додаток, що змусить init() створити новий гаманець
+            }
+        };
+
+        // --- ФУНКЦІЯ ІМПОРТУ ---
+        window.importWallet = async () => {
+            const input = prompt("Введіть ваші 24 слова (через пробіл):");
+            if (!input) return;
+
+            const words = input.trim().split(/\s+/);
+
+            // Проста перевірка на кількість слів (зазвичай 12, 18 або 24)
+            if (words.length !== 12 && words.length !== 24) {
+                alert("Помилка: Фраза повинна містити 12 або 24 слова. Ви ввели: " + words.length);
+                return;
+            }
+
+            // Перевірка валідності слів через бібліотеку (необов'язково, але бажано)
+            try {
+                const isValid = await tonwebMnemonic.validateMnemonic(words);
+                if (!isValid) {
+                    alert("Невалідна мнемонічна фраза! Перевірте правильність написання слів.");
+                    return;
+                }
+
+                localStorage.setItem('ton_mnemonic', words.join(' '));
+                alert("Гаманець успішно імпортовано!");
+                window.location.reload();
+            } catch (e) {
+                alert("Сталася помилка при перевірці фрази.");
+            }
+        };
+
         window.setMaxAmount = () => {
             const max = walletData.balance;
 
@@ -522,6 +559,16 @@
                         <span class="text-xs uppercase font-black text-gray-400">Секретна фраза (24 слова)</span>
                         <button onclick="window.toggleMnemonic()"
                             class="text-[10px] bg-black text-[#ffff00] px-2 py-1 rounded-md font-bold uppercase">Показати</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <button onclick="window.importWallet()"
+                            class="bg-black text-[#ffff00] p-4 rounded-2xl font-black uppercase text-[10px] active:scale-95 transition">
+                            Імпортувати
+                        </button>
+                        <button onclick="window.logoutWallet()"
+                            class="bg-red-500 text-white p-4 rounded-2xl font-black uppercase text-[10px] active:scale-95 transition">
+                            Вийти
+                        </button>
                     </div>
                     <p id="mnemonic-display"
                         class="text-[10px] font-mono break-words blur-[4px] select-none transition-all duration-300">
