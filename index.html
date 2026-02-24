@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIS2 WALLET</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=SN+Pro:wght@400;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body {
+            font-family: 'SN Pro', sans-serif;
+            background-color: #f2f2f7;
+            color: #000;
+            overflow: hidden;
+        }
+
+        .bg-yellow-main {
+            background-color: #ffff00;
+        }
+
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .modal.active {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            transition: transform 0.3s ease;
+            transform: translateY(20px);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .ton-icon-bg {
+            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsP_jDvr0RTK6gjpPj7nYxH72H2KZHxw8qeQ&s');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .loader-ring {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #ffff00;
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #reader {
+            width: 100% !important;
+            border: none !important;
+            border-radius: 20px;
+        }
+
+        #reader video {
+            border-radius: 20px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body class="flex justify-center">
+
+    <div class="w-full max-w-[448px] h-screen flex flex-col bg-white shadow-2xl relative overflow-hidden">
+
+        <div id="lib-loader"
+            class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-10 text-center">
+            <div class="loader-ring mb-6"></div>
+            <h2 class="font-[900] uppercase text-xl tracking-tighter">Unis2 Wallet</h2>
+            <p class="text-[10px] text-gray-400 uppercase tracking-widest mt-2 font-bold">Оновлення балансу...</p>
+        </div>
+
+        <div class="p-6 pb-0 flex justify-between items-center mb-6">
+            <div
+                class="bg-black text-[#ffff00] px-4 py-2 rounded-full text-[10px] font-extrabold flex items-center gap-2 uppercase">
+                <span id="status-dot" class="w-2 h-2 bg-[#ffff00] rounded-full"></span> <span>Mainnet</span>
+            </div>
+            <div onclick="window.updateData()"
+                class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center cursor-pointer active:scale-90 transition">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5">
+                    <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="px-6 text-center mb-8">
+            <h1 id="fiat-total" class="text-6xl font-[900] tracking-tighter mb-1">0.00 <span
+                    class="text-2xl text-gray-300 font-normal">₴</span></h1>
+            <p class="text-gray-400 text-[10px] font-black uppercase tracking-[0.4em]">Доступний баланс</p>
+        </div>
+
+        <div class="px-6 grid grid-cols-3 gap-4 mb-8 text-center">
+            <div onclick="window.openModal('modal-send')" class="flex flex-col items-center gap-2 cursor-pointer group">
+                <div
+                    class="w-14 h-14 bg-yellow-main rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5">
+                        <path d="M12 19V5M5 12l7-7 7 7" />
+                    </svg>
+                </div>
+                <span class="text-[10px] font-black uppercase">Надіслати</span>
+            </div>
+            <div onclick="window.openModal('modal-receive')" class="flex flex-col items-center gap-2 cursor-pointer">
+                <div
+                    class="w-14 h-14 bg-[#f2f2f7] rounded-full flex items-center justify-center active:scale-90 transition text-black">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M12 5v14M5 12l7 7 7-7" />
+                    </svg>
+                </div>
+                <span class="text-[10px] font-black uppercase">Отримати</span>
+            </div>
+            <div onclick="window.openModal('modal-settings')" class="flex flex-col items-center gap-2 cursor-pointer">
+                <div
+                    class="w-14 h-14 bg-[#f2f2f7] rounded-full flex items-center justify-center active:scale-90 transition text-black">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                    </svg>
+                </div>
+                <span class="text-[10px] font-black uppercase">Налашт.</span>
+            </div>
+        </div>
+
+        <div class="px-6 flex-1 overflow-y-auto no-scrollbar pb-10">
+            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Активи</h3>
+            <div onclick="window.openAssetDetail()"
+                class="flex items-center justify-between p-5 bg-gray-50 rounded-[2.5rem] border border-gray-100 cursor-pointer active:scale-[0.98] transition">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 ton-icon-bg rounded-full shadow-md"></div>
+                    <div>
+                        <p class="font-[900] uppercase text-sm">Toncoin</p>
+                        <p id="ton-price" class="text-[10px] text-gray-400 font-bold">...</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p id="ton-balance" class="font-[900] text-sm">0.00 TON</p>
+                    <p id="ton-fiat" class="text-[10px] text-gray-300 font-bold">0 ₴</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-asset-ton" class="modal fixed inset-0 flex items-end justify-center bg-black/60 backdrop-blur-sm"
+        onclick="window.closeOnOverlay(event)">
+        <div class="modal-content bg-white rounded-t-[40px] p-8 w-full max-w-[448px] h-[85vh] flex flex-col">
+            <div class="w-12 h-1 bg-gray-100 rounded-full mx-auto mb-8 flex-shrink-0"></div>
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 ton-icon-bg rounded-full mx-auto mb-4 shadow-xl"></div>
+                <h2 id="detail-ton-balance" class="text-3xl font-[900]">0.000000000 TON</h2>
+                <p id="detail-ton-fiat" class="text-gray-400 font-bold text-xs uppercase tracking-tighter">
+                    Синхронізація...</p>
+            </div>
+            <div class="flex-1 overflow-y-auto no-scrollbar">
+                <h3 class="text-[10px] font-black uppercase tracking-widest mb-4 text-gray-400">Історія операцій</h3>
+                <div id="tx-list" class="space-y-3"></div>
+            </div>
+            <button onclick="window.closeModal('modal-asset-ton')"
+                class="w-full bg-black text-[#ffff00] p-5 rounded-[2rem] font-[900] uppercase text-sm mt-4">Назад</button>
+        </div>
+    </div>
+
+    <div id="modal-receive" class="modal fixed inset-0 flex items-end justify-center bg-black/60 backdrop-blur-sm"
+        onclick="window.closeOnOverlay(event)">
+        <div class="modal-content bg-white rounded-t-[40px] p-8 w-full max-w-[448px] text-center">
+            <div class="w-12 h-1 bg-gray-100 rounded-full mx-auto mb-8"></div>
+            <h2 class="text-xl font-[900] uppercase mb-6">Ваша адреса</h2>
+            <div class="flex justify-center mb-6">
+                <div id="qrcode" class="p-4 bg-gray-50 rounded-[2.5rem] border-2 border-yellow-main shadow-inner"></div>
+            </div>
+            <p id="addr-text"
+                class="text-[10px] font-mono break-all bg-gray-50 p-5 rounded-2xl mb-6 font-bold border border-gray-100 text-black">
+            </p>
+            <button onclick="window.copyAddr()" id="copy-btn"
+                class="w-full bg-yellow-main text-black p-5 rounded-[2rem] font-[900] uppercase text-sm shadow-lg active:scale-95 transition">Копіювати
+                адресу</button>
+        </div>
+    </div>
+
+    <div id="modal-send" class="modal fixed inset-0 flex items-end justify-center bg-black/60 backdrop-blur-sm"
+        onclick="window.closeOnOverlay(event)">
+        <div class="modal-content bg-white rounded-t-[40px] p-8 w-full max-w-[448px] h-auto flex flex-col">
+            <div class="w-12 h-1 bg-gray-100 rounded-full mx-auto mb-8"></div>
+            <h2 class="text-xl font-[900] uppercase mb-6 text-center">Надіслати TON</h2>
+
+            <div class="space-y-4">
+                <div class="relative">
+                    <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Адреса отримувача</label>
+                    <div class="flex gap-2">
+                        <input id="send-address" type="text" placeholder="UQ... або EQ..."
+                            class="flex-1 p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-yellow-main outline-none font-mono text-xs transition">
+                        <button onclick="window.startScanner()"
+                            class="p-4 bg-black text-[#ffff00] rounded-2xl active:scale-90 transition">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path
+                                    d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 12h10M12 7v10" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="reader" class="hidden overflow-hidden"></div>
+
+                <div class="relative">
+                    <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Сума TON</label>
+                    <input id="send-amount" type="number" placeholder="0.00"
+                        class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-yellow-main outline-none font-bold transition">
+                    <button onclick="window.setMaxAmount()"
+                        class="absolute right-3 top-8 bg-black text-[#ffff00] px-3 py-1 rounded-lg text-[10px] font-black uppercase">MAX</button>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Коментар (Memo)</label>
+                    <input id="send-memo" type="text" placeholder="Опціонально"
+                        class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-yellow-main outline-none text-sm transition">
+                </div>
+            </div>
+
+            <button id="confirm-send-btn" onclick="window.confirmTransfer()"
+                class="w-full bg-black text-[#ffff00] p-5 rounded-[2rem] font-[900] uppercase text-sm mt-8 shadow-xl active:scale-95 transition">Підтвердити</button>
+        </div>
+    </div>
+
+    <div id="modal-status" class="modal fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="modal-content bg-white rounded-[32px] p-8 w-[90%] max-w-[350px] text-center">
+            <div id="status-icon" class="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full"></div>
+            <h3 id="status-title" class="font-[900] uppercase mb-2">Обробка...</h3>
+            <p id="status-desc" class="text-xs text-gray-500 mb-6"></p>
+            <button onclick="window.closeModal('modal-status')"
+                class="w-full bg-gray-100 p-4 rounded-2xl font-black uppercase text-xs">Закрити</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import TonWeb from 'https://esm.sh/tonweb@0.0.66';
+        import * as tonwebMnemonic from 'https://esm.sh/tonweb-mnemonic@0.0.1';
+
+        let walletData = { address: "", balance: 0, mnemonic: "" };
+        let currentRate = 0;
+        let html5QrCode;
+
+        // 1. КОНСТАНТИ (Встав на самому початку скрипта)
+        const API_KEY = 'f2e385d3634ee1bd64a310a30992622b9d8a82e9d7082ef02492d77c603e7d7f';
+
+        // 2. ОНОВЛЕНА ФУНКЦІЯ INIT
+        async function init() {
+            try {
+                let saved = localStorage.getItem('ton_mnemonic');
+                if (!saved) {
+                    const words = await tonwebMnemonic.generateMnemonic();
+                    saved = words.join(' ');
+                    localStorage.setItem('ton_mnemonic', saved);
+                }
+                walletData.mnemonic = saved;
+                // Записуємо фразу в модалку налаштувань
+                document.getElementById('mnemonic-display').innerText = saved;
+
+                // Ініціалізація з ключем
+                const tonweb = new TonWeb(new TonWeb.HttpProvider('https://toncenter.com/api/v2/jsonRPC', { apiKey: API_KEY }));
+                const seed = await tonwebMnemonic.mnemonicToSeed(walletData.mnemonic.split(' '));
+                const keyPair = TonWeb.utils.nacl.sign.keyPair.fromSeed(seed);
+                const wallet = new tonweb.wallet.all['v4R2'](tonweb.provider, { publicKey: keyPair.publicKey });
+                const addr = await wallet.getAddress();
+
+                walletData.address = addr.toString(true, true, false);
+                document.getElementById('addr-text').innerText = walletData.address;
+
+                document.getElementById('qrcode').innerHTML = "";
+                new QRCode(document.getElementById("qrcode"), { text: walletData.address, width: 180, height: 180, colorDark: "#000", colorLight: "rgba(0,0,0,0)" });
+
+                await updateData();
+                document.getElementById('lib-loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('lib-loader').style.display = 'none', 500);
+            } catch (err) { console.error(err); }
+        }
+
+        // 3. ФУНКЦІЯ ПЕРЕМИКАННЯ ВИДИМОСТІ ФРАЗИ
+        window.toggleMnemonic = () => {
+            const el = document.getElementById('mnemonic-display');
+            const btn = event.target;
+            if (el.classList.contains('blur-md')) {
+                el.classList.remove('blur-md');
+                el.classList.add('select-all'); // Дозволяє зручно копіювати
+                btn.innerText = "Сховати";
+            } else {
+                el.classList.add('blur-md');
+                el.classList.remove('select-all');
+                btn.innerText = "Показати";
+            }
+        };
+
+        async function updateData() {
+            if (!walletData.address) return;
+            document.getElementById('status-dot').classList.add('animate-pulse');
+            try {
+                const [tonRes, uahRes] = await Promise.all([
+                    fetch('https://api.binance.com/api/v3/ticker/price?symbol=TONUSDT'),
+                    fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTUAH')
+                ]);
+                currentRate = parseFloat((await tonRes.json()).price) * parseFloat((await uahRes.json()).price);
+
+                const bRes = await fetch(`https://toncenter.com/api/v2/getAddressInformation?address=${walletData.address}&api_key=${API_KEY}`);
+                const bData = await bRes.json();
+                walletData.balance = bData.result.balance / 1e9 || 0;
+
+                const uahStr = (walletData.balance * currentRate).toLocaleString('uk-UA', { minimumFractionDigits: 2 });
+                document.getElementById('ton-price').innerText = currentRate.toFixed(2) + " ₴";
+                document.getElementById('ton-balance').innerText = walletData.balance.toFixed(2) + " TON";
+                document.getElementById('ton-fiat').innerText = uahStr + " ₴";
+                document.getElementById('fiat-total').innerHTML = `${uahStr} <span class="text-2xl text-gray-300 font-normal">₴</span>`;
+
+                // Відображення повної суми
+                document.getElementById('detail-ton-balance').innerText = walletData.balance.toFixed(9) + " TON";
+                document.getElementById('detail-ton-fiat').innerText = "~ " + uahStr + " ₴";
+
+                await fetchTransactions();
+            } catch (e) { } finally { document.getElementById('status-dot').classList.remove('animate-pulse'); }
+        }
+
+        async function fetchTransactions() {
+            const res = await fetch(`https://toncenter.com/api/v2/getTransactions?address=${walletData.address}&limit=8&api_key=${API_KEY}`);
+            const data = await res.json();
+            const list = document.getElementById('tx-list');
+            list.innerHTML = "";
+            if (data.ok && data.result.length > 0) {
+                data.result.forEach((tx) => {
+                    const isOut = tx.out_msgs.length > 0;
+                    const val = (parseInt(isOut ? tx.out_msgs[0].value : tx.in_msg.value) / 1e9).toFixed(2);
+                    const hash = tx.transaction_id.hash;
+                    const item = document.createElement('div');
+                    item.className = "flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 cursor-pointer active:scale-95 transition";
+                    item.onclick = () => window.showTxDetail(isOut ? 'Вихідна' : 'Вхідна', val, hash, tx.utime);
+                    item.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 ${isOut ? 'bg-red-50' : 'bg-green-50'} rounded-full flex items-center justify-center">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isOut ? '#ff4d4d' : '#00c853'}" stroke-width="3"><path d="${isOut ? 'M7 17L17 7M17 7H7M17 7V17' : 'M7 7l10 10m0 0H7m10 0V7'}"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black uppercase">${isOut ? 'Відправлено' : 'Отримано'}</p>
+                                <p class="text-[8px] text-gray-400 font-mono">${hash.slice(0, 16)}...</p>
+                            </div>
+                        </div>
+                        <p class="text-sm font-[900] ${isOut ? 'text-red-500' : 'text-green-500'}">${isOut ? '-' : '+'}${val}</p>`;
+                    list.appendChild(item);
+                });
+            } else { list.innerHTML = `<div class="py-12 text-center opacity-10 font-black uppercase text-sm">Немає транзакцій</div>`; }
+        }
+
+        // Функція сканування
+        window.startScanner = async () => {
+            const readerContainer = document.getElementById('reader');
+            readerContainer.classList.toggle('hidden');
+
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+
+            if (readerContainer.classList.contains('hidden')) {
+                await html5QrCode.stop();
+                return;
+            }
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    const cleanAddr = decodedText.replace('ton://transfer/', '').split('?')[0];
+                    document.getElementById('send-address').value = cleanAddr;
+                    html5QrCode.stop();
+                    readerContainer.classList.add('hidden');
+                },
+                (errorMessage) => { }
+            ).catch(err => console.error(err));
+        };
+
+        window.setMaxAmount = () => {
+            const fee = 0.05;
+            const max = Math.max(0, walletData.balance - fee);
+            document.getElementById('send-amount').value = max.toFixed(9);
+        };
+
+        window.confirmTransfer = async () => {
+            const addr = document.getElementById('send-address').value.trim();
+            const amount = document.getElementById('send-amount').value;
+            const memo = document.getElementById('send-memo').value;
+            const btn = document.getElementById('confirm-send-btn');
+
+            if (!addr || amount <= 0) { alert("Вкажіть вірну адресу та суму!"); return; }
+
+            btn.disabled = true;
+            window.openModal('modal-status');
+            const sIcon = document.getElementById('status-icon');
+            const sTitle = document.getElementById('status-title');
+            const sDesc = document.getElementById('status-desc');
+
+            sIcon.innerHTML = `<div class="loader-ring"></div>`;
+            sTitle.innerText = "Надсилаємо...";
+            sDesc.innerText = `Відправка ${amount} TON...`;
+
+            try {
+                const tonweb = new TonWeb();
+                const seed = await tonwebMnemonic.mnemonicToSeed(walletData.mnemonic.split(' '));
+                const keyPair = TonWeb.utils.nacl.sign.keyPair.fromSeed(seed);
+                const wallet = new tonweb.wallet.all['v4R2'](tonweb.provider, { publicKey: keyPair.publicKey });
+
+                const seqno = await wallet.methods.seqno().call();
+
+                const transfer = wallet.methods.transfer({
+                    secretKey: keyPair.secretKey,
+                    toAddress: addr,
+                    amount: TonWeb.utils.toNano(amount.toString()),
+                    seqno: seqno || 0, // 0 ініціює deploy автоматично
+                    payload: memo,
+                    sendMode: 3,
+                });
+
+                await transfer.send();
+
+                sIcon.innerHTML = `<div class="bg-green-100 text-green-500 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl font-bold">✓</div>`;
+                sTitle.innerText = "Готово!";
+                sDesc.innerText = "Транзакція надіслана. Баланс оновиться скоро.";
+
+                document.getElementById('send-address').value = "";
+                document.getElementById('send-amount').value = "";
+            } catch (e) {
+                console.error(e);
+                sIcon.innerHTML = `<div class="bg-red-100 text-red-500 w-12 h-12 rounded-full flex items-center justify-center mx-auto">!</div>`;
+                sTitle.innerText = "Помилка";
+                sDesc.innerText = "Переконайтеся, що на балансі є мінімум 0.05 TON для комісії.";
+            } finally {
+                btn.disabled = false;
+                setTimeout(updateData, 5000);
+            }
+        };
+
+        window.showTxDetail = (type, val, hash, time) => {
+            const date = new Date(time * 1000).toLocaleString('uk-UA');
+            document.getElementById('tx-info-content').innerHTML = `
+                <div class="flex justify-between border-b pb-2"><span class="text-gray-400 uppercase text-[10px]">Тип:</span><span>${type}</span></div>
+                <div class="flex justify-between border-b pb-2"><span class="text-gray-400 uppercase text-[10px]">Сума:</span><span>${val} TON</span></div>
+                <div class="flex justify-between border-b pb-2"><span class="text-gray-400 uppercase text-[10px]">Дата:</span><span>${date}</span></div>
+                <div class="pt-2"><span class="text-gray-400 uppercase text-[10px]">Хеш транзакції:</span><p class="text-[8px] break-all font-mono mt-1">${hash}</p></div>
+            `;
+            window.openModal('modal-tx-detail');
+        };
+
+        window.updateData = updateData;
+        window.openAssetDetail = () => { window.updateData(); window.openModal('modal-asset-ton'); };
+        window.openModal = (id) => { document.getElementById(id).classList.add('active'); };
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+            if (id === 'modal-send' && html5QrCode) html5QrCode.stop();
+        };
+        window.closeOnOverlay = (e) => { if (e.target.classList.contains('modal')) window.closeModal(e.target.id); };
+        window.copyAddr = () => {
+            navigator.clipboard.writeText(walletData.address);
+            const btn = document.getElementById('copy-btn');
+            btn.innerText = "СКОПІЙОВАНО!";
+            setTimeout(() => btn.innerText = "КОПІЮВАТИ АДРЕСУ", 1500);
+        };
+
+        init();
+        setInterval(updateData, 45000);
+    </script>
+
+    <div id="modal-tx-detail" class="modal fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+        onclick="window.closeOnOverlay(event)">
+        <div class="modal-content bg-white rounded-[32px] p-8 w-[90%] max-w-[380px] shadow-2xl">
+            <h2 class="text-center font-[900] uppercase mb-6 tracking-tighter">Деталі транзакції</h2>
+            <div id="tx-info-content" class="space-y-4 text-sm font-bold"></div>
+            <button onclick="window.closeModal('modal-tx-detail')"
+                class="w-full bg-black text-[#ffff00] p-4 rounded-2xl font-[900] uppercase text-xs mt-6">Зрозуміло</button>
+        </div>
+    </div>
+
+    <div id="modal-settings" class="modal fixed inset-0 flex items-end justify-center bg-black/60 backdrop-blur-sm"
+        onclick="window.closeOnOverlay(event)">
+        <div class="modal-content bg-white rounded-t-[40px] p-8 w-full max-w-[448px]">
+            <div class="w-12 h-1 bg-gray-100 rounded-full mx-auto mb-8"></div>
+            <h2 class="text-xl font-[900] uppercase mb-6 text-center">Налаштування</h2>
+            <div class="space-y-4 mb-6">
+                <div class="flex justify-between p-4 bg-gray-50 rounded-2xl items-center">
+                    <span class="text-xs uppercase font-black text-gray-400">Мережа</span>
+                    <span class="font-bold text-sm">Mainnet</span>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-2xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs uppercase font-black text-gray-400">Секретна фраза (24 слова)</span>
+                        <button onclick="window.toggleMnemonic()"
+                            class="text-[10px] bg-black text-[#ffff00] px-2 py-1 rounded-md font-bold uppercase">Показати</button>
+                    </div>
+                    <p id="mnemonic-display"
+                        class="text-[10px] font-mono break-words blur-[4px] select-none transition-all duration-300">
+                    </p>
+                </div>
+            </div>
+            <button onclick="window.closeModal('modal-settings')"
+                class="w-full bg-black text-white p-5 rounded-[2rem] font-[900] uppercase text-sm">Закрити</button>
+        </div>
+    </div>
+
+</body>
+
+</html>
