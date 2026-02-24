@@ -55,10 +55,10 @@
         }
 
         .loader-ring {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #ffff00;
-            border-top-color: #000;
+            width: 50px;
+            height: 50px;
+            border: 4px solid #ffff00;
+            border-top-color: #f2f2f7;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
@@ -89,7 +89,7 @@
         <div id="lib-loader"
             class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-10 text-center">
             <div class="loader-ring mb-6"></div>
-            <h2 class="font-[900] uppercase text-xl tracking-tighter">Unis2 Wallet</h2>
+            <h2 class="font-[900] uppercase text-xl tracking-tighter">UNIS2 Wallet</h2>
             <p class="text-[10px] text-gray-400 uppercase tracking-widest mt-2 font-bold">Оновлення балансу...</p>
         </div>
 
@@ -115,7 +115,7 @@
         <div class="px-6 grid grid-cols-3 gap-4 mb-8 text-center">
             <div onclick="window.openModal('modal-send')" class="flex flex-col items-center gap-2 cursor-pointer group">
                 <div
-                    class="w-14 h-14 bg-yellow-main rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
+                    class="w-14 h-14 bg-[#ffff00] rounded-full flex items-center justify-center shadow-lg active:scale-90 transition border border-black/5">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5">
                         <path d="M12 19V5M5 12l7-7 7 7" />
                     </svg>
@@ -124,9 +124,8 @@
             </div>
             <div onclick="window.openModal('modal-receive')" class="flex flex-col items-center gap-2 cursor-pointer">
                 <div
-                    class="w-14 h-14 bg-[#f2f2f7] rounded-full flex items-center justify-center active:scale-90 transition text-black">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2.5">
+                    class="w-14 h-14 bg-[#f2f2f7] rounded-full flex items-center justify-center shadow-md active:scale-90 transition border border-black/5">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5">
                         <path d="M12 5v14M5 12l7 7 7-7" />
                     </svg>
                 </div>
@@ -134,9 +133,8 @@
             </div>
             <div onclick="window.openModal('modal-settings')" class="flex flex-col items-center gap-2 cursor-pointer">
                 <div
-                    class="w-14 h-14 bg-[#f2f2f7] rounded-full flex items-center justify-center active:scale-90 transition text-black">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2.5">
+                    class="w-14 h-14 bg-[#f2f2f7] rounded-full flex items-center justify-center shadow-md active:scale-90 transition border border-black/5">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5">
                         <circle cx="12" cy="12" r="3" />
                         <path
                             d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
@@ -180,7 +178,7 @@
                 <div id="tx-list" class="space-y-3"></div>
             </div>
             <button onclick="window.closeModal('modal-asset-ton')"
-                class="w-full bg-black text-[#ffff00] p-5 rounded-[2rem] font-[900] uppercase text-sm mt-4">Назад</button>
+                class="w-full bg-[#ffff00] text-black p-5 rounded-[2rem] font-[900] uppercase text-sm mt-4 shadow-lg active:scale-95 transition">Назад</button>
         </div>
     </div>
 
@@ -214,7 +212,7 @@
                         <input id="send-address" type="text" placeholder="UQ... або EQ..."
                             class="flex-1 p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-yellow-main outline-none font-mono text-xs transition">
                         <button onclick="window.startScanner()"
-                            class="p-4 bg-black text-[#ffff00] rounded-2xl active:scale-90 transition">
+                            class="p-4 bg-[#ffff00] text-[#000] rounded-2xl active:scale-90 transition">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.5">
                                 <path
@@ -228,10 +226,10 @@
 
                 <div class="relative">
                     <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Сума TON</label>
-                    <input id="send-amount" type="number" placeholder="0.00"
+                    <input id="send-amount" type="number" placeholder="0.00" step="any"
                         class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-yellow-main outline-none font-bold transition">
                     <button onclick="window.setMaxAmount()"
-                        class="absolute right-3 top-8 bg-black text-[#ffff00] px-3 py-1 rounded-lg text-[10px] font-black uppercase">MAX</button>
+                        class="absolute right-3 top-8 bg-[#ffff00] text-[#000] px-3 py-1 rounded-lg text-[10px] font-black uppercase">MAX</button>
                 </div>
 
                 <div>
@@ -242,7 +240,7 @@
             </div>
 
             <button id="confirm-send-btn" onclick="window.confirmTransfer()"
-                class="w-full bg-black text-[#ffff00] p-5 rounded-[2rem] font-[900] uppercase text-sm mt-8 shadow-xl active:scale-95 transition">Підтвердити</button>
+                class="w-full bg-[#ffff00] text-[#000] p-5 rounded-[2rem] font-[900] uppercase text-sm mt-8 shadow-xl active:scale-95 transition">Підтвердити</button>
         </div>
     </div>
 
@@ -330,7 +328,8 @@
 
                 const uahStr = (walletData.balance * currentRate).toLocaleString('uk-UA', { minimumFractionDigits: 2 });
                 document.getElementById('ton-price').innerText = currentRate.toFixed(2) + " ₴";
-                document.getElementById('ton-balance').innerText = walletData.balance.toFixed(2) + " TON";
+                // Замість .toFixed(2) постав хоча б 4 або 9 знаків
+                document.getElementById('ton-balance').innerText = walletData.balance.toFixed(4) + " TON";
                 document.getElementById('ton-fiat').innerText = uahStr + " ₴";
                 document.getElementById('fiat-total').innerHTML = `${uahStr} <span class="text-2xl text-gray-300 font-normal">₴</span>`;
 
@@ -350,7 +349,8 @@
             if (data.ok && data.result.length > 0) {
                 data.result.forEach((tx) => {
                     const isOut = tx.out_msgs.length > 0;
-                    const val = (parseInt(isOut ? tx.out_msgs[0].value : tx.in_msg.value) / 1e9).toFixed(2);
+                    // Замість .toFixed(2) використовуємо .toFixed(9) або просто ділимо для повної точності
+                    const val = (parseInt(isOut ? tx.out_msgs[0].value : tx.in_msg.value) / 1e9).toFixed(9).replace(/\.?0+$/, "");
                     const hash = tx.transaction_id.hash;
                     const item = document.createElement('div');
                     item.className = "flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 cursor-pointer active:scale-95 transition";
@@ -399,9 +399,18 @@
         };
 
         window.setMaxAmount = () => {
-            const fee = 0.05;
-            const max = Math.max(0, walletData.balance - fee);
-            document.getElementById('send-amount').value = max.toFixed(9);
+            const max = walletData.balance;
+
+            // Форматуємо: 9 знаків після коми, але видаляємо зайві нулі в кінці
+            // parseFloat(...) знову перетворить рядок "1.500000" на число 1.5
+            document.getElementById('send-amount').value = parseFloat(max.toFixed(9));
+
+            // Додатково: візуальний відгук (необов'язково)
+            if (max === 0) {
+                console.warn("Недостатньо коштів");
+            } else if (max > walletData.balance) {
+                alert("Недостатньо коштів")
+            }
         };
 
         window.confirmTransfer = async () => {
@@ -494,7 +503,7 @@
             <h2 class="text-center font-[900] uppercase mb-6 tracking-tighter">Деталі транзакції</h2>
             <div id="tx-info-content" class="space-y-4 text-sm font-bold"></div>
             <button onclick="window.closeModal('modal-tx-detail')"
-                class="w-full bg-black text-[#ffff00] p-4 rounded-2xl font-[900] uppercase text-xs mt-6">Зрозуміло</button>
+                class="w-full bg-[#ffff00] text-black p-4 rounded-2xl font-[900] uppercase text-xs mt-6 shadow-md active:scale-95 transition">Зрозуміло</button>
         </div>
     </div>
 
@@ -520,7 +529,7 @@
                 </div>
             </div>
             <button onclick="window.closeModal('modal-settings')"
-                class="w-full bg-black text-white p-5 rounded-[2rem] font-[900] uppercase text-sm">Закрити</button>
+                class="w-full bg-[#ffff00] text-black p-5 rounded-[2rem] font-[900] uppercase text-sm shadow-xl active:scale-95 transition">Закрити</button>
         </div>
     </div>
 
